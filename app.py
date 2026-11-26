@@ -278,87 +278,14 @@ h1, h2, h3 {{ line-height: 1.2; }}
 def run_monty(code, inputs):
     global last_website_html
     last_website_html = None
-    output = io.StringIO()
-    input_index = 0
-    variables = {}
 
-    def monty_input(prompt=""):
-        nonlocal input_index
-        if input_index >= len(inputs):
-            raise NeedInput(str(prompt))
-        answer = inputs[input_index]
-        input_index += 1
-        print(str(prompt) + str(answer), file=output)
-        return answer
+    from monty_engine import run_monty as run_safe_monty
 
-    def vachange(old_name, new_name):
-        if old_name not in variables:
-            raise NameError(f"Variable '{old_name}' does not exist.")
-        if new_name in variables and new_name != old_name:
-            raise NameError(f"Variable '{new_name}' already exists.")
-        variables[new_name] = variables.pop(old_name)
-
-    def average(values):
-        if not values:
-            raise ValueError("Cannot calculate the average of an empty list.")
-        return sum(values) / len(values)
-
-    variables.update({
-        "pt": lambda *args: print(*args, file=output),
-        "show": lambda *args: print(*args, file=output),
-        "inp": monty_input,
-        "ask": monty_input,
-        "spam": sum,
-        "egg": True,
-        "chicken": False,
-        "every": all,
-        "mword": str,
-        "text": str,
-        "number": int,
-        "integer": int,
-        "decimal": float,
-        "properties": property,
-        "mass": object,
-        "pows": pow,
-        "giveup": "giveup",
-        "Unicodeserror": UnicodeError,
-        "end": max,
-        "sort": sorted,
-        "getatr": getattr,
-        "length": len,
-        "minimum": min,
-        "maximum": max,
-        "average": average,
-        "absolute": abs,
-        "roundnum": round,
-        "sequence": range,
-        "random_number": random.randint,
-        "monty": "python",
-        "python": "monty",
-        "website": Website,
-        "__vachange__": vachange,
-    })
-
-    try:
-        tree = ast.parse(code)
-        tree = MontyTranslator().visit(tree)
-        ast.fix_missing_locations(tree)
-        compiled = compile(tree, "<monty>", "exec")
-        with redirect_stdout(output):
-            exec(compiled, variables, variables)
-        return {
-            "output": output.getvalue(),
-            "done": True,
-            "website_html": last_website_html,
-        }
-    except NeedInput as request:
-        return {"output": "", "inputNeeded": request.prompt}
-    except Exception as error:
-        return {
-            "output": output.getvalue() + f"\n{type(error).__name__}: {error}",
-            "done": True,
-            "website_html": last_website_html,
-        }
+    return run_safe_monty(
+        code,
+        inputs,
+        max_output=20_000
+    )
 
 
 class Handler(BaseHTTPRequestHandler):
