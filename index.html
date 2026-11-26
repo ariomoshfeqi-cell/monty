@@ -1,0 +1,71 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Monty Playground</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><span class="brand-mark">M</span><div><strong>MONTY</strong><small>PLAYGROUND</small></div></div>
+    <div class="credit">Made with Python · Created by Ario Moshfeghi</div>
+  </header>
+
+  <main class="workspace">
+    <section class="editor-panel">
+      <div class="section-heading">
+        <div><span class="eyebrow">YOUR PROJECT</span><h1>Monty Editor</h1></div>
+        <button id="runButton" class="run-button">▶ Run</button>
+      </div>
+      <div class="editor-wrap">
+        <div class="editor-label"><span class="dot"></span> main.monty</div>
+        <textarea id="code" spellcheck="false" autocapitalize="off" autocomplete="off"># Welcome to Monty!
+
+web = website("My First Monty Website")
+
+web.background_color("#111827")
+web.color("#f9fafb")
+web.accent_color("#8b5cf6")
+
+web.navbar("MONTY", [
+    ("Home", "#home"),
+    ("About", "#about")
+])
+
+web.heading("Hello, World!")
+web.text("This website was created with Monty.")
+
+web.button("Click me", "Monty is working!")
+
+web.card("Made with Monty", "Build websites using simple Monty commands.")
+web.columns("Design", "Build", "Create")
+web.image("https://placehold.co/900x320/292044/ffffff?text=Made+with+Monty", "Monty banner")
+
+web.heading("Contact", 2)
+web.form(["Your name", "Your email"], "Send")
+
+web.animate("Welcome to the Monty web builder!", "fade")
+web.footer("Made with Python · Created by Ario Moshfeghi")
+
+web.run()</textarea>
+      </div>
+      <div class="hint">Tip: edit the example, then press Run. Your Monty code runs locally.</div>
+
+      <section class="output-section">
+        <div class="section-heading compact"><div><span class="eyebrow">PROGRAM RESULTS</span><h2>Output</h2></div><button id="clearButton" class="quiet-button">Clear</button></div>
+        <pre id="output">Your program output will appear here.</pre>
+      </section>
+    </section>
+
+    <section class="preview-panel">
+      <div class="preview-heading"><div><span class="eyebrow">LIVE RESULT</span><h2>Website Preview</h2></div><span class="local-pill">● LOCAL</span></div>
+      <iframe id="websitePreview" title="Generated website preview" sandbox="allow-scripts allow-forms allow-popups"></iframe>
+      <div class="preview-note">Generated websites appear here. The preview is separate from this editor.</div>
+    </section>
+  </main>
+  <footer class="page-footer">MONTY · A programming language made with Python · Created by Ario Moshfeghi</footer>
+  <script src="script.js"></script>
+</body>
+</html>
