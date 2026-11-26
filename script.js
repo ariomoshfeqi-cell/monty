@@ -12,7 +12,7 @@ async function runCode() {
 
     try {
         while (true) {
-            const response = await fetch("/run", {
+            const response = await fetch("https://Ariomoshfeqicell.pythonanywhere.com/run", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ code, inputs })
