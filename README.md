@@ -13,7 +13,7 @@
    python app.py
    ```
 
-5. Open `http://127.0.0.1:8000` in Chrome.
+5. Open `https://ariomoshfeqi-cell.github.io/monty/` in Chrome.
 6. Press Ctrl+C in the terminal to stop the server.
 
 No third-party Python packages are required.
