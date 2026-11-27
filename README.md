@@ -191,4 +191,5 @@ Output:
 ---
 
 **Monty — Created by Ario Moshfeghi. Made with Python.**
+
 Copyright © 2026 Ario Moshfeghi. All rights reserved.
