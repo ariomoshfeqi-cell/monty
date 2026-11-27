@@ -51,14 +51,15 @@ class MontyError(Exception):
 
 
 class MontyEngine:
-    def __init__(self, inputs=None, max_output=None):
+    def __init__(self, inputs=None, max_output=None, website_factory=None):
         self.variables = {
             "egg": True,
             "chicken": False,
             "monty": "python",
             "python": "monty",
         }
-
+        self.website_factory = website_factory
+        self.website_instances = []
         self.max_output = max_output
         self.inputs = inputs or []
         self.input_index = 0
@@ -74,6 +75,21 @@ class MontyEngine:
             "sequence": self.safe_range,
             "random_number": random.randint,
         })
+
+        if self.website_factory is not None:
+            self.functions["Website"] = self.create_website
+
+        if self.website_factory is not None:
+            self.functions["Website"] = self.create_website
+
+    def create_website(self, *args):
+        if len(args) > 1:
+            raise MontyError("Website accepts only one title.")
+
+        title = args[0] if args else "My Monty Website"
+        website = self.website_factory(title)
+        self.website_instances.append(website)
+        return website
 
     def print_output(self, *values):
         text = " ".join(str(value) for value in values) + "\n"
@@ -194,6 +210,37 @@ class MontyEngine:
                 return any(self.evaluate(value) for value in node.values)
 
         if isinstance(node, ast.Call):
+            if isinstance(node.func, ast.Attribute):
+                if not isinstance(node.func.value, ast.Name):
+                    raise MontyError("Invalid Website object.")
+
+                object_name = node.func.value.id
+                website = self.variables.get(object_name)
+
+                if not any(website is item for item in self.website_instances):
+                    raise MontyError("Only Website objects can use methods.")
+
+                allowed_methods = {
+                    "heading", "text", "button", "image", "link",
+                    "card", "navbar", "footer", "input", "form",
+                    "columns", "divider", "spacer", "background_color",
+                    "color", "accent_color", "font", "custom_css",
+                    "animate", "run"
+                }
+
+                method_name = node.func.attr
+
+                if method_name not in allowed_methods:
+                    raise MontyError("Website method not allowed.")
+
+                if node.keywords:
+                    raise MontyError("Keyword arguments are not supported.")
+
+                method = getattr(website, method_name)
+                arguments = [self.evaluate(arg) for arg in node.args]
+
+                return method(*arguments)
+
             if not isinstance(node.func, ast.Name):
                 raise MontyError("Only approved function calls are allowed.")
 
@@ -278,38 +325,67 @@ class MontyEngine:
             for statement in tree.body:
                 self.execute_statement(statement)
 
+            website_html = None
+
+            for website in reversed(self.website_instances):
+                if website.html is not None:
+                    website_html = website.html
+                    break
+
             return {
                 "output": self.output.getvalue(),
                 "done": True,
-                "website_html": None,
+                "website_html": website_html,
             }
 
         except MontyError as error:
             message = str(error)
 
             if message.startswith("INPUT_NEEDED:"):
+                website_html = next(
+                    (w.html for w in reversed(self.website_instances)
+                     if w.html is not None),
+                    None
+                )
+
                 return {
                     "output": self.output.getvalue(),
                     "inputNeeded": message[len("INPUT_NEEDED:"):],
+                    "website_html": website_html,
                 }
+
+            website_html = next(
+                (w.html for w in reversed(self.website_instances)
+                 if w.html is not None),
+                None
+            )
 
             return {
                 "output": self.output.getvalue()
                 + "\nMontyError: " + message,
                 "done": True,
-                "website_html": None,
+                "website_html": website_html,
             }
 
         except Exception as error:
+            website_html = next(
+                (w.html for w in reversed(self.website_instances)
+                 if w.html is not None),
+                None
+            )
+
             return {
                 "output": self.output.getvalue()
                 + f"\n{type(error).__name__}: {error}",
                 "done": True,
-                "website_html": None,
+                "website_html": website_html,
             }
 
 
-def run_monty(code, inputs=None, max_output=None):
-    engine = MontyEngine(inputs, max_output)
+def run_monty(code, inputs=None, max_output=None, website_factory=None):
+    engine = MontyEngine(
+        inputs,
+        max_output,
+        website_factory=website_factory
+    )
     return engine.run(code)
-
