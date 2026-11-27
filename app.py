@@ -48,6 +48,7 @@ class Website:
 
     def __init__(self, title="My Monty Website"):
         self.title = str(title)
+        self.html = None
         self.elements = []
         self.custom_css_rules = []
         self.background = "#ffffff"
@@ -205,7 +206,7 @@ class Website:
         global last_website_html
         body = "\n".join(self.elements)
         custom_css = "\n".join(self.custom_css_rules)
-        last_website_html = f"""<!doctype html>
+        self.html = f"""<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -276,15 +277,13 @@ h1, h2, h3 {{ line-height: 1.2; }}
 
 
 def run_monty(code, inputs):
-    global last_website_html
-    last_website_html = None
-
     from monty_engine import run_monty as run_safe_monty
 
     return run_safe_monty(
         code,
         inputs,
-        max_output=20_000
+        max_output=20_000,
+        website_factory=Website
     )
 
 
@@ -344,3 +343,60 @@ if __name__ == "__main__":
         print("\nMonty stopped.")
         server.server_close()
  
+def application(environ, start_response):
+    """PythonAnywhere WSGI entry point."""
+
+    method = environ.get("REQUEST_METHOD", "GET")
+    path = environ.get("PATH_INFO", "/")
+
+    headers = [
+        ("Content-Type", "application/json; charset=utf-8"),
+        ("Access-Control-Allow-Origin",
+         "https://ariomoshfeqi-cell.github.io"),
+        ("Access-Control-Allow-Methods", "POST, OPTIONS, GET"),
+        ("Access-Control-Allow-Headers", "Content-Type"),
+        ("X-Content-Type-Options", "nosniff"),
+    ]
+
+    def respond(status, body):
+        data = body.encode("utf-8")
+        start_response(
+            status,
+            headers + [("Content-Length", str(len(data)))]
+        )
+        return [data]
+
+    if method == "OPTIONS":
+        return respond("200 OK", "")
+
+    if method == "GET" and path == "/":
+        return respond("200 OK", '{"status":"Monty backend online"}')
+
+    if method != "POST" or path != "/run":
+        return respond("404 Not Found", '{"error":"Not found"}')
+
+    try:
+        length = int(environ.get("CONTENT_LENGTH") or 0)
+
+        if length <= 0 or length > 65536:
+            return respond(
+                "413 Payload Too Large",
+                '{"error":"Invalid request size"}'
+            )
+
+        raw_data = environ["wsgi.input"].read(length)
+        data = json.loads(raw_data.decode("utf-8"))
+
+        code = data.get("code", "")
+        inputs = data.get("inputs", [])
+
+        if not isinstance(code, str) or not isinstance(inputs, list):
+            return respond("400 Bad Request", '{"error":"Invalid data"}')
+
+        result = run_monty(code, inputs)
+
+        return respond("200 OK", json.dumps(result))
+
+    except Exception:
+        return respond("500 Internal Server Error",
+                       '{"error":"Backend error"}')
