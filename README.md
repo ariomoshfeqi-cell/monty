@@ -15,7 +15,6 @@ if you want to open Monty online visit: https://ariomoshfeqi-cell.github.io/mont
    ```
 
 5. Open `https://ariomoshfeqi-cell.github.io/monty/` in Chrome.
-6. Press Ctrl+C in the terminal to stop the server.
 
 No third-party Python packages are required.
 
