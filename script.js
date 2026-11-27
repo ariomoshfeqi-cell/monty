@@ -12,7 +12,11 @@ async function runCode() {
 
     try {
         while (true) {
-            const response = await fetch("https://Ariomoshfeqicell.pythonanywhere.com/run", {
+const backendURL = ["localhost", "127.0.0.1"].includes(window.location.hostname)
+    ? "/run"
+    : "https://Ariomoshfeqicell.pythonanywhere.com/run";
+
+const response = await fetch(backendURL, {            
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ code, inputs })
