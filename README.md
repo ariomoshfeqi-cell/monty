@@ -193,3 +193,14 @@ Output:
 **Monty — Created by Ario Moshfeghi. Made with Python.**
 
 Copyright © 2026 Ario Moshfeghi. All rights reserved.
+
+
+## License
+
+Monty is intended to be open-source under the Apache License 2.0.
+
+Anyone may use, modify, and distribute Monty under the terms of this license.
+
+Created by Ario Moshfeghi.
+Made with Python.
+
