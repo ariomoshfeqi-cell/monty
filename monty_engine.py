@@ -221,12 +221,12 @@ class MontyEngine:
                     raise MontyError("Only Website objects can use methods.")
 
                 allowed_methods = {
-                    "heading", "text", "button", "image", "link",
-                    "card", "navbar", "footer", "input", "form",
-                    "columns", "divider", "spacer", "background_color",
-                    "color", "accent_color", "font", "custom_css",
-                    "animate", "run"
-                }
+    "heading", "text", "button", "image", "link",
+    "card", "navbar", "footer", "input", "form",
+    "columns", "divider", "spacer", "background_color",
+    "color", "accent_color", "font", "custom_css",
+    "animate", "arcade", "open", "run"
+}
 
                 method_name = node.func.attr
 
