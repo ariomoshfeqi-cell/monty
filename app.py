@@ -43,6 +43,9 @@ class MontyTranslator(ast.NodeTransformer):
         return node
 
 
+last_website_html = None
+
+
 class Website:
     """A small Monty website builder that generates a standalone HTML page."""
 
@@ -202,6 +205,17 @@ class Website:
             f"{escape(str(content))}</div>"
         )
 
+    def open(self, browser="chrome"):
+        import webbrowser
+
+        if self.html is None:
+            self.run()
+
+        url = "http://127.0.0.1:8000/published"
+        webbrowser.open(url, new=2)
+
+        return "Opening Monty website in Chrome: " + url
+
     def run(self):
         global last_website_html
         body = "\n".join(self.elements)
@@ -273,6 +287,7 @@ h1, h2, h3 {{ line-height: 1.2; }}
 </head>
 <body><main>{body}</main></body>
 </html>"""
+        last_website_html = self.html
         return "Website created! Check the Website Preview."
 
 
@@ -299,6 +314,18 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         path = unquote(self.path.split("?", 1)[0])
+
+        if path == "/published":
+            if last_website_html is None:
+                self.send_error(404, "No Monty website has been created yet.")
+                return
+
+            self._send(
+                200,
+                last_website_html,
+                "text/html; charset=utf-8"
+            )
+            return
         if path == "/":
             path = "/index.html"
         target = (WEB_DIR / path.lstrip("/")).resolve()
